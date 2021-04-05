@@ -1,2 +1,4 @@
+abs_path=$(dirname $(readlink -e "$0"))
+
 echo "alias pycalc='
-    python3  \"$(dirname $0)/py/main.py\"'" >> ~/.bashrc
+    python3  \"$abs_path/py/main.py\"'" >> ~/.bashrc
