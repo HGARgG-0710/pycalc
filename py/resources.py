@@ -19,10 +19,10 @@ def analyze_str(input_message="Input expression, that you wish to be calculated 
             int(char)
             t = "int"
         except ValueError:
-            t = "float" if char == "f" else "str"
+            t = "float" if char == "f" else "str" if char != "n" else "int"
 
         if t == "int":
-            numbers += [char]
+            numbers += ([char] if char != "n" else "-")
             index += 1
             while True:
                 try:
@@ -32,10 +32,12 @@ def analyze_str(input_message="Input expression, that you wish to be calculated 
 
                     if index == len(input_str):
                         break
+
                     index += 1
                     numbers[len(numbers) - 1] += curr_symbol
                 except ValueError:
                     break
+            index -= 1
         elif t == "str" and char != " ":
             allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
 
@@ -49,7 +51,30 @@ def analyze_str(input_message="Input expression, that you wish to be calculated 
             else:
                 raise Exception("Invalid character " + char + " inputted.")
         elif t == "float":
-            raise Exception("Sorry, no support for floats yet!")
+            numbers += (input_str[index + 1]
+                        if input_str[index + 1] != "n" else "-")
+            index += 2
+            while True:
+                try:
+                    curr_symbol = input_str[index if index < len(
+                        input_str) else index - 1]
+
+                    if(curr_symbol != "." and curr_symbol != ","):
+                        int(curr_symbol)
+                        index += 1
+                    else:
+                        numbers[len(numbers) - 1] += "."
+                        index += 1
+                        continue
+
+                    numbers[len(numbers) - 1] += curr_symbol
+
+                    if index == len(input_str):
+                        break
+
+                except ValueError:
+                    break
+            index -= 1
         index = index + 1
 
     return numbers, operators
@@ -59,7 +84,7 @@ def handle_command(command):
     if command == "-e" or command == "--exit":
         exit()
     elif command == "-h" or command == "--help":
-        print("To exit the app type command '-e' or '--exit'. \n"
+        print("To exit the app type command '-e' or '--exit'. \n\n"
               "Operators: \n"
               "1. division: /\n"
               "2. addition: +\n"
@@ -67,9 +92,14 @@ def handle_command(command):
               "4. multiplication: *\n"
               "5. taking the remainder of the division: %\n"
               "6. exponentiation: ^\n"
-              "7. whole division: #\n"
+              "7. whole division: #\n\n"
               "To specify a float number type the 'f' letter and only then the number itself. \n"
-              "Example: f4.2\n")
+              "Example: f4.2\n\n"
+              "To specify a negative number type the 'n' letter and only then the number itself (note: do NOT write the 'minus' sign).\n"
+              "Example: n42\n"
+              "This would give you the -42 result\n"
+              "Example of a negative float number: fn84.6"
+              )
 
 
 def calculate(expression):
