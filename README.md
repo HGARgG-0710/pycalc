@@ -1,6 +1,8 @@
 # Pycalc
 
-Pycalc is a simple open source cmd calculator written in Python. It has all basic operations(addition, subtraction, division, whole division, taking the remainder of the devision, multiplication and exponentation) and can work with any quantity of numbers. Only integers are supported for now, floats aren't.
+Pycalc is a simple open source cmd calculator written in Python. It has all basic operations(addition, subtraction, division, whole division, taking the remainder of the devision, multiplication and exponentation) and can work with any quantity of numbers. It supports integers and floats. To specify a float number type 'f' before it, to specify a negative number type 'n'. 
+Example of a negative float number: "fn42.42", 
+negative integer: "n42".
 
 ## Setup
 It's easy. Just run the setup.bat(if you're on Windows) or setup.sh(if you're on Linux or any other platform supporting bash) as an administrator. 
