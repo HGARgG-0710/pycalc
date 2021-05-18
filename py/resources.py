@@ -1,9 +1,54 @@
 from sys import exit
 
 
-def analyze_str(input_message="Input expression, that you wish to be calculated or command, "
-                              "that you wish to be executed. For help type '-h' or '--help'.\n$ "):
-    input_str = input(input_message)
+class History:
+    def __init__(self):
+        self._history = []
+
+    def get(self):
+        return self._history
+
+    def add(self, command: str):
+        self._history.append(command)
+
+
+class CommandHandler:
+    def __init__(self, commands: dict, history: History):
+        self.allowedCommands = commands
+        self.history = history
+
+    def handle(self, command):
+        if command in self.allowedCommands["exit"]:
+            exit()
+        elif command in self.allowedCommands["help"]:
+            print("To exit the app type command '-e' or '--exit'. \n\n"
+                  "Operators: \n"
+                  "1. division: /\n"
+                  "2. addition: +\n"
+                  "3. subtraction: -\n"
+                  "4. multiplication: *\n"
+                  "5. taking the remainder of the division: %\n"
+                  "6. exponentiation: ^\n"
+                  "7. whole division: #\n\n"
+                  "To specify a float number type the 'f' letter and only then the number itself. \n"
+                  "Example: f4.2\n\n"
+                  "To specify a negative number type the 'n' letter and only then the number itself (note: do NOT write the 'minus' sign).\n"
+                  "Example: n42\n"
+                  "This would give you the -42 result\n"
+                  "Example of a negative float number: fn84.6\n"
+                  "Also you can use brackets:\n",
+                  "(fn32.6 + fn55.1) ^ fn8.33\n"
+                  "Happy coding!\n"
+                  )
+        elif command in self.allowedCommands["history"]:
+            print("History:\n")
+            for i in range(0, len(self.history.get())):
+                print(str(i) + ".", self.history.get()[i])
+        else:
+            print("Error: Unknown command inputted")
+
+
+def analyze_str(input_str: str, handler: CommandHandler):
     numbers = []
     operators = []
 
@@ -22,7 +67,8 @@ def analyze_str(input_message="Input expression, that you wish to be calculated 
             t = "float" if char == "f" else "str" if char != "n" else "int"
 
         if t == "int":
-            numbers += ([char] if char != "n" else "-")
+            is_negative = char == "n"
+            numbers += ([char] if not is_negative else ["(-"])
             index += 1
             while True:
                 try:
@@ -36,23 +82,34 @@ def analyze_str(input_message="Input expression, that you wish to be calculated 
                     index += 1
                     numbers[len(numbers) - 1] += curr_symbol
                 except ValueError:
+                    if is_negative:
+                        numbers[len(numbers) - 1] += ")"
                     break
-            index -= 1
-        elif t == "str" and char != " ":
+        elif t == "str":
             allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
 
             if char == "-" and index == 0:
                 # command
-                handle_command(input_str)
-                return analyze_str("\n$ ")
+                handler.handle(input_str)
+                input_str = input("\n$ ")
+                return analyze_str(input_str, handler)
             elif char in allowed_operators:
                 # operator
                 operators += char
+            elif char == "(" or char == ")":
+                # bracket
+                operators += ["+"]
+                numbers += [("0" if char == ")" else "") +
+                            char + ("0" if char == "(" else "")]
             else:
-                raise Exception("Invalid character " + char + " inputted.")
+                if char != " ":
+                    print("Error: Invalid character " + char + " inputted.")
+                    return
+            index += 1
         elif t == "float":
+            is_negative = input_str[index + 1] == "n"
             numbers += (input_str[index + 1]
-                        if input_str[index + 1] != "n" else "-")
+                        if not is_negative else ["(-"])
             index += 2
             while True:
                 try:
@@ -70,36 +127,16 @@ def analyze_str(input_message="Input expression, that you wish to be calculated 
                     numbers[len(numbers) - 1] += curr_symbol
 
                     if index == len(input_str):
+                        if is_negative:
+                            raise ValueError("Ended lol ;)")
                         break
 
                 except ValueError:
+                    if is_negative:
+                        numbers[len(numbers) - 1] += ")"
                     break
-            index -= 1
-        index = index + 1
 
     return numbers, operators
-
-
-def handle_command(command):
-    if command == "-e" or command == "--exit":
-        exit()
-    elif command == "-h" or command == "--help":
-        print("To exit the app type command '-e' or '--exit'. \n\n"
-              "Operators: \n"
-              "1. division: /\n"
-              "2. addition: +\n"
-              "3. subtraction: -\n"
-              "4. multiplication: *\n"
-              "5. taking the remainder of the division: %\n"
-              "6. exponentiation: ^\n"
-              "7. whole division: #\n\n"
-              "To specify a float number type the 'f' letter and only then the number itself. \n"
-              "Example: f4.2\n\n"
-              "To specify a negative number type the 'n' letter and only then the number itself (note: do NOT write the 'minus' sign).\n"
-              "Example: n42\n"
-              "This would give you the -42 result\n"
-              "Example of a negative float number: fn84.6"
-              )
 
 
 def calculate(expression):
@@ -116,7 +153,7 @@ def calculate(expression):
     print(result)
 
 
-def operator_evaluator(operator):
+def operator_evaluator(operator: str):
     common_operators = ["+", "-", "*", "/", "%"]
     return operator if operator in common_operators else \
         "//" if operator == "#" else "**"
