@@ -21,7 +21,8 @@ class CommandHandler:
         if command in self.allowedCommands["exit"]:
             exit()
         elif command in self.allowedCommands["help"]:
-            print("To exit the app type command '-e' or '--exit'. \n\n"
+            print("To exit the app type command '-e' or '--exit'. \n"
+                  "To see your history type '-hi' or '--history' command.\n\n"
                   "Operators: \n"
                   "1. division: /\n"
                   "2. addition: +\n"
@@ -35,10 +36,9 @@ class CommandHandler:
                   "To specify a negative number type the 'n' letter and only then the number itself (note: do NOT write the 'minus' sign).\n"
                   "Example: n42\n"
                   "This would give you the -42 result\n"
-                  "Example of a negative float number: fn84.6\n"
+                  "Example of a negative float number: fn84.6\n\n"
                   "Also you can use brackets:\n"
                   "(fn32.6 + fn55.1) ^ fn8.33\n"
-                  "To see your history type '-hi' or '--history' command.\n"
                   "Happy using!\n"
                   )
         elif command in self.allowedCommands["history"]:
