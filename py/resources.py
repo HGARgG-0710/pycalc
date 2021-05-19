@@ -15,9 +15,10 @@ class History:
 class CommandHandler:
     def __init__(self, commands: dict, history: History):
         self.allowedCommands = commands
-        self.history = history
+        self._history = history
 
-    def handle(self, command):
+    def handle(self, command: str):
+        command = command.strip(" ")
         if command in self.allowedCommands["exit"]:
             exit()
         elif command in self.allowedCommands["help"]:
@@ -43,10 +44,13 @@ class CommandHandler:
                   )
         elif command in self.allowedCommands["history"]:
             print("History:\n")
-            for i in range(0, len(self.history.get())):
-                print(str(i) + ".", self.history.get()[i])
+            for i in range(0, len(self._history.get())):
+                print(str(i) + ".", self._history.get()[i])
         else:
             print("Error: Unknown command inputted")
+
+    def getHistory(self):
+        return self._history
 
 
 def analyze_str(input_str: str, handler: CommandHandler):
@@ -93,6 +97,8 @@ def analyze_str(input_str: str, handler: CommandHandler):
                 # command
                 handler.handle(input_str)
                 input_str = input("\n$ ")
+                handler.getHistory().add(input_str)
+
                 return analyze_str(input_str, handler)
             elif char in allowed_operators:
                 # operator
