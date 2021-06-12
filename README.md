@@ -18,7 +18,8 @@ Windows (as an Administrator):
     setup.bat
 
 Linux, macOS and others:
-$ sudo setup.sh
+
+    $ sudo setup.sh
 
 ## Use
 
