@@ -20,6 +20,7 @@ class CommandHandler:
     def handle(self, command: str):
         command = command.strip(" ")
         if command in self.allowedCommands["exit"]:
+            print("Goodbye!")
             exit()
         elif command in self.allowedCommands["help"]:
             print("To exit the app type command '-e' or '--exit'. \n"
