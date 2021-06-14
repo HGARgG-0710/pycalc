@@ -47,8 +47,9 @@ class CommandHandler:
                   "First letter is the original currency (USD) "
                   "and the second one is target currency (RUB, in this exact case).\n"
                   "Also they can be capital letters.\n"
-                  "Currencies, that are allowed: \n "
-                  "USD - d,\n RUB - r,\n INR - i,\n UAH - u,\n EUR - e\n"
+                  "Currencies, that are allowed: \n  "
+                  "USD - d,\n  RUB - r,\n  INR - i,\n  UAH - u,\n  EUR - e,\n  "
+                  "CNY - y,\n  GBP - b\n"
                   "And those can be used in actual mathematical expressions.\n"
                   "Example: 40000 * dr\n\n"
                   "Wish you happy using!\n"
@@ -103,7 +104,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
                     break
         elif t == "str":
             allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
-            currency_symbols = ["D", "R", "E", "I", "U"]
+            currency_symbols = ["D", "R", "E", "I", "U", "B", "Y"]
 
             if char == "-" and index == 0:
                 # command
@@ -122,12 +123,14 @@ def analyze_str(input_str: str, handler: CommandHandler):
                             char + ("0" if char == "(" else "")]
 
             elif char.upper() in currency_symbols:
-                index += 2
-                return (numbers + [eval_currency(char.upper(), input_str[(index - 1)].upper()), "0"]), (operators + ["+"])
+                index += 1
+                numbers += ["(" + eval_currency(char.upper(),
+                                                input_str[(index)].upper()), "0)"]
+                operators += ["+"]
             else:
                 if char != " ":
                     print("Error: Invalid character " + char + " inputted.")
-                    return
+                    return (), ()
             index += 1
         elif t == "float":
             is_negative = input_str[index + 1] == "n"
@@ -172,8 +175,8 @@ def calculate(expression):
         if i != len(nums) - 1:
             expr += operator_evaluator(operators[i])
 
-    result = eval(expr)
-    print(result)
+    result = "" if expr == "" else eval(expr)
+    None if result == "" else print(result)
 
 
 def operator_evaluator(operator: str):
@@ -185,21 +188,27 @@ def operator_evaluator(operator: str):
 def eval_currency(originalCurrency, targetCurrency):
     from requests import get
 
-    currency_names = {
-        "D": "USD",
-        "E": "EUR",
-        "R": "RUB",
-        "U": "UAH",
-        "I": "INR",
-    }
+    if originalCurrency.upper() == targetCurrency.upper():
+        exchange_rate = "1"
+    else:
 
-    original = currency_names[originalCurrency]
-    target = currency_names[targetCurrency]
+        currency_names = {
+            "D": "USD",
+            "E": "EUR",
+            "R": "RUB",
+            "U": "UAH",
+            "I": "INR",
+            "Y": "CNY",
+            "B": "GBP"
+        }
 
-    address = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
-    query_text = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+        original = currency_names[originalCurrency]
+        target = currency_names[targetCurrency]
 
-    result = get(query_text).json()
-    exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
+        address = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
+        query_text = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+
+        result = get(query_text).json()
+        exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
 
     return exchange_rate
