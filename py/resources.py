@@ -40,8 +40,18 @@ class CommandHandler:
                   "This would give you the -42 result\n"
                   "Example of a negative float number: fn84.6\n\n"
                   "Also you can use brackets:\n"
-                  "(fn32.6 + fn55.1) ^ fn8.33\n"
-                  "Happy using!\n"
+                  "(fn32.6 + fn55.1) ^ fn8.33\n\n"
+                  "If you need to get exchange rate from one currency to another "
+                  "(for example, to get rubles from dollars), then you can do this too.\n"
+                  "Example: dr\n"
+                  "First letter is the original currency (USD) "
+                  "and the second one is target currency (RUB, in this exact case).\n"
+                  "Also they can be capital letters.\n"
+                  "Currencies, that are allowed: \n "
+                  "USD - d,\n RUB - r,\n INR - i,\n UAH - u,\n EUR - e\n"
+                  "And those can be used in actual mathematical expressions.\n"
+                  "Example: 40000 * dr\n\n"
+                  "Wish you happy using!\n"
                   )
         elif command in self.allowedCommands["history"]:
             print("History:\n")
@@ -93,6 +103,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
                     break
         elif t == "str":
             allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
+            currency_symbols = ["D", "R", "E", "I", "U"]
 
             if char == "-" and index == 0:
                 # command
@@ -109,6 +120,10 @@ def analyze_str(input_str: str, handler: CommandHandler):
                 operators += ["+"]
                 numbers += [("0" if char == ")" else "") +
                             char + ("0" if char == "(" else "")]
+
+            elif char.upper() in currency_symbols:
+                index += 2
+                return (numbers + [eval_currency(char.upper(), input_str[(index - 1)].upper()), "0"]), (operators + ["+"])
             else:
                 if char != " ":
                     print("Error: Invalid character " + char + " inputted.")
@@ -165,3 +180,26 @@ def operator_evaluator(operator: str):
     common_operators = ["+", "-", "*", "/", "%"]
     return operator if operator in common_operators else \
         "//" if operator == "#" else "**"
+
+
+def eval_currency(originalCurrency, targetCurrency):
+    from requests import get
+
+    currency_names = {
+        "D": "USD",
+        "E": "EUR",
+        "R": "RUB",
+        "U": "UAH",
+        "I": "INR",
+    }
+
+    original = currency_names[originalCurrency]
+    target = currency_names[targetCurrency]
+
+    address = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
+    query_text = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+
+    result = get(query_text).json()
+    exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
+
+    return exchange_rate
