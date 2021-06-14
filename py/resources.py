@@ -1,4 +1,3 @@
-from sys import exit
 
 
 class History:
@@ -20,6 +19,7 @@ class CommandHandler:
     def handle(self, command: str):
         command = command.strip(" ")
         if command in self.allowedCommands["exit"]:
+            from sys import exit
             print("Goodbye!")
             exit()
         elif command in self.allowedCommands["help"]:
@@ -49,7 +49,7 @@ class CommandHandler:
                   "Also they can be capital letters.\n"
                   "Currencies, that are allowed: \n  "
                   "USD - d,\n  RUB - r,\n  INR - i,\n  UAH - u,\n  EUR - e,\n  "
-                  "CNY - y,\n  GBP - b\n"
+                  "CNY - y,\n  GBP - b,\n  CAD - c,\n  JPY - j\n\n"
                   "And those can be used in actual mathematical expressions.\n"
                   "Example: 40000 * dr\n\n"
                   "Wish you happy using!\n"
@@ -59,7 +59,7 @@ class CommandHandler:
             for i in range(0, len(self._history.get())):
                 print(str(i) + ".", self._history.get()[i])
         else:
-            print("Error: Unknown command inputted")
+            print("Error: Unknown command inputted.")
 
     def getHistory(self):
         return self._history
@@ -77,6 +77,8 @@ def analyze_str(input_str: str, handler: CommandHandler):
 
         char = input_str[index]
 
+        # checking whether current char is an integer or not
+        # (I know there is a function for doing it, but still)
         try:
             int(char)
             t = "int"
@@ -103,8 +105,8 @@ def analyze_str(input_str: str, handler: CommandHandler):
                         numbers[len(numbers) - 1] += ")"
                     break
         elif t == "str":
+            from re import match
             allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
-            currency_symbols = ["D", "R", "E", "I", "U", "B", "Y"]
 
             if char == "-" and index == 0:
                 # command
@@ -122,7 +124,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
                 numbers += [("0" if char == ")" else "") +
                             char + ("0" if char == "(" else "")]
 
-            elif char.upper() in currency_symbols:
+            elif match("[A-Za-z]", char):
                 index += 1
                 numbers += ["(" + eval_currency(char.upper(),
                                                 input_str[(index)].upper()), "0)"]
@@ -188,10 +190,11 @@ def operator_evaluator(operator: str):
 def eval_currency(originalCurrency, targetCurrency):
     from requests import get
 
+    # * note: this does not depend upon the fact if
+    # * the currency is acceptable or not!
     if originalCurrency.upper() == targetCurrency.upper():
         exchange_rate = "1"
     else:
-
         currency_names = {
             "D": "USD",
             "E": "EUR",
@@ -199,8 +202,17 @@ def eval_currency(originalCurrency, targetCurrency):
             "U": "UAH",
             "I": "INR",
             "Y": "CNY",
-            "B": "GBP"
+            "B": "GBP",
+            "J": "JPY",
+            "C": "CAD"
         }
+
+        if originalCurrency.upper() not in currency_names or targetCurrency.upper() not in currency_names:
+            err_currency = originalCurrency if originalCurrency.upper(
+            ) not in currency_names else targetCurrency
+
+            print(f"Error: no such currency as {err_currency}")
+            return "0"
 
         original = currency_names[originalCurrency]
         target = currency_names[targetCurrency]
