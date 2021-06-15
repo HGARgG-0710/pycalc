@@ -29,6 +29,23 @@ Linux, macOS and others:
 
 After you have done everything requiered in the "Setup" section, you need to type
 
-    pycalc
+    $ pycalc
 
 in your shell. Aaaand... that's it! These are all the steps you need to do to fully install and setup pycalc on your computer. Wish you happy using!
+
+## Updates
+
+The project's not really big and quite spontaneous, so I've dicided to add the system for auto-updating it every time someone starts the app.
+
+But if you had pycalc before, then for this to come into work, you need to manually do:
+
+    $ cd "path/to/pycalc"
+    $ git pull
+
+Because, until now it was the only way of updating. Later on, you're gonna get them automatically.
+
+By the way, if you're new to pycalc, then none of this is required and once you've installed it, it'll automatically update every time you start it with:
+
+    $ pycalc
+
+So, don't get scared off if you see any scary git output, probably it's just me cleaning the code or implementing a new feature :)
