@@ -1,5 +1,3 @@
-
-
 class History:
     def __init__(self):
         self._history = []
@@ -96,7 +94,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
                     int(curr_symbol)  # checking if a number
 
                     if index == len(input_str):
-                        break
+                        raise ValueError("break")
 
                     index += 1
                     numbers[len(numbers) - 1] += curr_symbol
@@ -177,8 +175,9 @@ def calculate(expression):
         if i != len(nums) - 1:
             expr += operator_evaluator(operators[i])
 
-    result = "" if expr == "" else eval(expr)
-    None if result == "" else print(result)
+    if expr != "":
+        result = eval(expr)
+        print(result)
 
 
 def operator_evaluator(operator: str):
