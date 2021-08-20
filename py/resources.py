@@ -125,7 +125,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
             elif match("[A-Za-z]", char):
                 index += 1
                 numbers += ["(" + eval_currency(char.upper(),
-                                                input_str[(index)].upper()), "0)"]
+                                                input_str[index].upper()), "0)"]
                 operators += ["+"]
             else:
                 if char != " ":
@@ -153,9 +153,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
                     numbers[len(numbers) - 1] += curr_symbol
 
                     if index == len(input_str):
-                        if is_negative:
-                            raise ValueError("Ended lol ;)")
-                        break
+                        raise ValueError("Ended")
 
                 except ValueError:
                     if is_negative:
