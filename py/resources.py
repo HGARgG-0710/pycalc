@@ -55,7 +55,7 @@ class CommandHandler:
         elif command in self.allowedCommands["history"]:
             print("History:\n")
             for i in range(0, len(self._history.get())):
-                print(str(i) + ".", self._history.get()[i])
+                print(str(i+1) + ".", self._history.get()[i])
         else:
             print("Error: Unknown command inputted.")
 
