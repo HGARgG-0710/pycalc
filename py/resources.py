@@ -190,34 +190,34 @@ def eval_currency(originalCurrency, targetCurrency):
     # * note: this does not depend upon the fact if
     # * the currency is acceptable or not!
     if originalCurrency.upper() == targetCurrency.upper():
-        exchange_rate = "1"
-    else:
-        currency_names = {
-            "D": "USD",
-            "E": "EUR",
-            "R": "RUB",
-            "U": "UAH",
-            "I": "INR",
-            "Y": "CNY",
-            "B": "GBP",
-            "J": "JPY",
-            "C": "CAD"
-        }
+        return "1"
 
-        if originalCurrency.upper() not in currency_names or targetCurrency.upper() not in currency_names:
-            err_currency = originalCurrency if originalCurrency.upper(
-            ) not in currency_names else targetCurrency
+    currency_names = {
+        "D": "USD",
+        "E": "EUR",
+        "R": "RUB",
+        "U": "UAH",
+        "I": "INR",
+        "Y": "CNY",
+        "B": "GBP",
+        "J": "JPY",
+        "C": "CAD"
+    }
 
-            print(f"Error: no such currency as {err_currency}")
-            return "0"
+    if originalCurrency.upper() not in currency_names or targetCurrency.upper() not in currency_names:
+        err_currency = originalCurrency if originalCurrency.upper(
+        ) not in currency_names else targetCurrency
 
-        original = currency_names[originalCurrency]
-        target = currency_names[targetCurrency]
+        print(f"Error: no such currency as {err_currency}")
+        return "0"
 
-        address = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
-        query_text = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+    original = currency_names[originalCurrency]
+    target = currency_names[targetCurrency]
 
-        result = get(query_text).json()
-        exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
+    address = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
+    query_text = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+
+    result = get(query_text).json()
+    exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
 
     return exchange_rate
