@@ -14,8 +14,8 @@ It's simple enough. Just clone the repository in the required directory after wh
 
 It looks a bit like this:
 
-```bash 
-$ cd path/to/ 
+```bash
+$ cd path/to/
 $ git clone https://github.com/HGARgG-0710/pycalc.git
 $ cd pycalc
 ```
@@ -42,7 +42,7 @@ $ pycalc
 
 in your shell. And that's it. These are all the steps you need to make to fully install and setup pycalc on your computer. Wish you happy using!
 
-(You can exit the app with the "-e" or "--exit" commands) 
+(You can exit the app with the "-e" or "--exit" commands)
 
 ## Updates
 
@@ -50,7 +50,7 @@ The project's not really big and quite spontaneous, so I've dicided to add the s
 
 But if you had pycalc before, then for this to come into work, you need to manually do:
 
-```bash 
+```bash
 $ cd path/to/pycalc
 $ git pull
 ```

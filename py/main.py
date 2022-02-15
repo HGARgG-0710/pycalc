@@ -35,5 +35,5 @@ if __name__ == '__main__':
             else: 
                 loop(input("\n$"), history, handler) 
         except Exception: 
-            print("UnknownError: your input caused an unexpected exception to occur. \n") 
+            print("UnknownError: your input caused an unexpected exception to occur. ") 
             errindex += 1 

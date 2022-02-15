@@ -49,7 +49,7 @@ class CommandHandler:
                   "USD - d,\n  RUB - r,\n  INR - i,\n  UAH - u,\n  EUR - e,\n  "
                   "CNY - y,\n  GBP - b,\n  CAD - c,\n  JPY - j\n\n"
                   "And those can be used in actual mathematical expressions.\n"
-                  "Example: 40000 * dr\n\n"
+                  "Example: 40000 * dr, will give you the amount of rubles that there are in 40000 dollars.\n\n"
                   "Wish you happy using!\n"
                   )
         elif command in self.allowedCommands["history"]:
