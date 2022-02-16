@@ -27,7 +27,7 @@ class DefinitionHandler:
     def readval(self, name: str) -> str: 
         return self.definitions[name]
 
-    def listdefs() -> dict: 
+    def listdefs(self) -> dict: 
         return self.definitions
 
 class FunctionCallHandler: 
@@ -92,8 +92,13 @@ class CommandHandler:
             for i in range(0, len(self._history.get())):
                 print(str(i+1) + ".", self._history.get()[i])
         elif command in self.allowedCommands["listdefs"]: 
-            pass # TODO: Make a body later
-        elif command[:3] in self.allowedCommands["makedef"] or command[:11] in self.allowedCommands["makedef"]: 
+            defs:dict = self._defhandler.listdefs()
+            keys: list = list(defs.keys())
+
+            print("Variables:")
+            for i in range(len(defs)): 
+                print(str(i + 1) + "." + keys[i] + " = " + str(defs[keys[i]]))
+        elif command[:3] in self.allowedCommands["makedef"] or command[:12] in self.allowedCommands["makedef"]: 
             defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
             for i in range(len(defs)): 
                 self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self), False, True))
@@ -159,7 +164,7 @@ def analyze_str(input_str: str, cmdhandler: CommandHandler) -> tuple:
 
             if char == "-" and index == 0:
                 # command
-                cmdhandler.handle(input_str, input_str[3:] if len(input_str) > 2 else "")
+                cmdhandler.handle(input_str, " ".join(input_str.split(" ")[1:]))
                 input_str = input("\n$ ")
                 cmdhandler.getHistory().add(input_str)
 
@@ -213,7 +218,6 @@ def analyze_str(input_str: str, cmdhandler: CommandHandler) -> tuple:
 
     return numbers, operators
 
-
 def calculate(expression: tuple, should_output = True, should_return = False):
     nums = expression[0]
     operators = expression[1]
@@ -231,12 +235,10 @@ def calculate(expression: tuple, should_output = True, should_return = False):
 
     return result if should_return else None
 
-
 def operator_evaluator(operator: str):
     common_operators = ["+", "-", "*", "/", "%"]
     return operator if operator in common_operators else \
         "//" if operator == "#" else "**"
-
 
 def eval_currency(originalCurrency:str, targetCurrency:str):
     from requests import get

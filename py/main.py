@@ -19,7 +19,7 @@ if __name__ == '__main__':
         "help": ["--help", "-h"],
         "history": ["--history", "-hi"], 
         "readdef": ["--readvar", "-rv"], 
-        "makedef": [ "--definevar", "-dv"], 
+        "makedef": [ "--definevars", "-dv"], 
         "setdef": ["--setvar", "-sv"], 
         "listdefs": ["--listvars", "-lv"]
     }
