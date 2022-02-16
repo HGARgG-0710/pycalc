@@ -8,14 +8,49 @@ class History:
     def add(self, command: str):
         self._history.append(command)
 
+class DefinitionHandler: 
+    def __init__(self, predefined: dict = {}):
+        self.definitions:dict = predefined
+    
+    def define(self, name:str, value:str) -> None: 
+        if (name in self.definitions.keys()):
+            print("DefineError: You have already defined the given variable. ")
+            return
+        self.definitions[name] = value
+
+    def setval(self, name:str, value:str) -> None:
+        if (name in self.definitions.keys()): 
+            self.definitions[name] = value
+            return
+        print("SetValueError: The given variable name is not defined. First define it. ")       
+
+    def readval(self, name: str) -> str: 
+        return self.definitions[name]
+
+    def listdefs() -> dict: 
+        return self.definitions
+
+class FunctionCallHandler: 
+    def __init__(self, functions: tuple): 
+        self.functions:tuple = functions
+
+    def getfuncvalue(index: int, value): 
+        return self.function[index](value)
+
+    def getfuncindex(funcname:str):
+        return self.index(funcname)
 
 class CommandHandler:
-    def __init__(self, commands: dict, history: History):
+    def __init__(self, commands: dict, history: History, defhandler: DefinitionHandler, funchandler: FunctionCallHandler):
         self.allowedCommands = commands
-        self._history = history
 
-    def handle(self, command: str):
+        self._history = history
+        self._defhandler = defhandler
+        self._funchandler = funchandler
+
+    def handle(self, command: str, additional:str = ""):
         command = command.strip(" ")
+
         if command in self.allowedCommands["exit"]:
             from sys import exit
             print("Goodbye!")
@@ -56,14 +91,30 @@ class CommandHandler:
             print("History:\n")
             for i in range(0, len(self._history.get())):
                 print(str(i+1) + ".", self._history.get()[i])
+        elif command in self.allowedCommands["listdefs"]: 
+            pass # TODO: Make a body later
+        elif command[:3] in self.allowedCommands["makedef"] or command[:11] in self.allowedCommands["makedef"]: 
+            defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
+            for i in range(len(defs)): 
+                self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self), False, True))
+                print("Variable added: " + defs[i][0] + " = " + str(self._defhandler.readval(defs[i][0])))
+        elif command in self.allowedCommands["setdef"]: 
+            pass # TODO: Make a body later
+        elif command in self.allowedCommands["readdef"]: 
+            pass # TODO: Make a body later 
         else:
             print("Error: Unknown command inputted.")
 
-    def getHistory(self):
+    def getHistory(self) -> History:
         return self._history
 
+    def getFuncHandler(self) -> FunctionCallHandler: 
+        return self._funchandler
 
-def analyze_str(input_str: str, handler: CommandHandler):
+    def getDefHandler(self) -> DefinitionHandler: 
+        return self._defhandler
+
+def analyze_str(input_str: str, cmdhandler: CommandHandler) -> tuple:
     numbers = []
     operators = []
 
@@ -108,11 +159,11 @@ def analyze_str(input_str: str, handler: CommandHandler):
 
             if char == "-" and index == 0:
                 # command
-                handler.handle(input_str)
+                cmdhandler.handle(input_str, input_str[3:] if len(input_str) > 2 else "")
                 input_str = input("\n$ ")
-                handler.getHistory().add(input_str)
+                cmdhandler.getHistory().add(input_str)
 
-                return analyze_str(input_str, handler)
+                return analyze_str(input_str, cmdhandler)
             elif char in allowed_operators:
                 # operator
                 operators += char
@@ -163,7 +214,7 @@ def analyze_str(input_str: str, handler: CommandHandler):
     return numbers, operators
 
 
-def calculate(expression):
+def calculate(expression: tuple, should_output = True, should_return = False):
     nums = expression[0]
     operators = expression[1]
     expr = ""
@@ -175,7 +226,10 @@ def calculate(expression):
 
     if expr != "":
         result = eval(expr)
-        print(result)
+        if should_output:
+            print(result)
+
+    return result if should_return else None
 
 
 def operator_evaluator(operator: str):
@@ -184,7 +238,7 @@ def operator_evaluator(operator: str):
         "//" if operator == "#" else "**"
 
 
-def eval_currency(originalCurrency, targetCurrency):
+def eval_currency(originalCurrency:str, targetCurrency:str):
     from requests import get
 
     # * note: this does not depend upon the fact if
@@ -192,7 +246,7 @@ def eval_currency(originalCurrency, targetCurrency):
     if originalCurrency.upper() == targetCurrency.upper():
         return "1"
 
-    currency_names = {
+    currency_names:dict = {
         "D": "USD",
         "E": "EUR",
         "R": "RUB",
@@ -211,11 +265,11 @@ def eval_currency(originalCurrency, targetCurrency):
         print(f"Error: no such currency as {err_currency}")
         return "0"
 
-    original = currency_names[originalCurrency]
-    target = currency_names[targetCurrency]
+    original:str = currency_names[originalCurrency]
+    target:str = currency_names[targetCurrency]
 
-    address = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
-    query_text = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+    address:str = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
+    query_text:str = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
 
     result = get(query_text).json()
     exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
