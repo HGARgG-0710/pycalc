@@ -18,11 +18,12 @@ class DefinitionHandler:
             return 0
         self.definitions[name] = value
 
-    def setval(self, name:str, value:str) -> None:
+    def setval(self, name:str, value:str):
         if (name in self.definitions.keys()): 
             self.definitions[name] = value
             return
         print("SetValueError: The given variable name is not defined. First define it. ")       
+        return 0
 
     def readval(self, name: str) -> str: 
         return self.definitions[name]
@@ -97,15 +98,24 @@ class CommandHandler:
 
             print("Variables:")
             for i in range(len(defs)): 
-                print(str(i + 1) + "." + keys[i] + " = " + str(defs[keys[i]]))
+                print(str(i + 1) + ". " + keys[i] + " = " + str(defs[keys[i]]))
         elif command[:3] in self.allowedCommands["makedef"] or command[:12] in self.allowedCommands["makedef"]: 
             defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
             for i in range(len(defs)): 
                 res = self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self), False, True))
                 if res != 0:
-                    print("Variable added: " + defs[i][0] + " = " + str(self._defhandler.readval(defs[i][0])))
-        elif command in self.allowedCommands["setdef"]: 
-            pass # TODO: Make a body later
+                    print("Variable added: " + defs[i][0] + " := " + str(self._defhandler.readval(defs[i][0])))
+        elif command[:8] in self.allowedCommands["setdef"] or command[:3] in self.allowedCommands["setdef"]: 
+            import logging 
+            log = logging.getLogger(__name__) 
+            try:  
+                sets: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
+                for i in range(len(sets)): 
+                    res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self), False, True))
+                    if res != 0: 
+                        print("Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0]))) 
+            except Exception as e: 
+                logging.exception(e)
         elif command in self.allowedCommands["readdef"]: 
             pass # TODO: Make a body later 
         else:

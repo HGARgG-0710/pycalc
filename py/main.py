@@ -1,3 +1,4 @@
+import math
 from resources import analyze_str, calculate, CommandHandler, History, DefinitionHandler, FunctionCallHandler
 from os import system, path, chdir
 
@@ -24,9 +25,15 @@ if __name__ == '__main__':
         "listdefs": ["--listvars", "-lv"]
     }
 
+    predefined: dict = {
+        "e": math.e, 
+        "pi": math.pi,  
+        "phi": (1+math.sqrt(5))/2
+    } 
+
     functions = ()
     
-    defhandler: DefinitionHandler = DefinitionHandler()
+    defhandler: DefinitionHandler = DefinitionHandler(predefined)
     funchandler: FunctionCallHandler = FunctionCallHandler(functions) 
     history: History = History()
     cmdhandler: CommandHandler = CommandHandler(commands, history, defhandler, funchandler)
