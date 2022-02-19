@@ -106,16 +106,11 @@ class CommandHandler:
                 if res != 0:
                     print("Variable added: " + defs[i][0] + " := " + str(self._defhandler.readval(defs[i][0])))
         elif command[:8] in self.allowedCommands["setdef"] or command[:3] in self.allowedCommands["setdef"]: 
-            import logging 
-            log = logging.getLogger(__name__) 
-            try:  
-                sets: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
-                for i in range(len(sets)): 
-                    res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self), False, True))
-                    if res != 0: 
-                        print("Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0]))) 
-            except Exception as e: 
-                logging.exception(e)
+            sets: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
+            for i in range(len(sets)): 
+                res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self), False, True))
+                if res != 0: 
+                    print("Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0]))) 
         elif command in self.allowedCommands["readdef"]: 
             pass # TODO: Make a body later 
         else:
