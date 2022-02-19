@@ -26,8 +26,8 @@ if __name__ == '__main__':
     }
 
     predefined: dict = {
-        "e": math.e, 
         "pi": math.pi,  
+        "e": math.e, 
         "phi": (1+math.sqrt(5))/2
     } 
 
