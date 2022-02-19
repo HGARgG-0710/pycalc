@@ -12,10 +12,10 @@ class DefinitionHandler:
     def __init__(self, predefined: dict = {}):
         self.definitions:dict = predefined
     
-    def define(self, name:str, value:str) -> None: 
+    def define(self, name:str, value:str): 
         if (name in self.definitions.keys()):
             print("DefineError: You have already defined the given variable. ")
-            return
+            return 0
         self.definitions[name] = value
 
     def setval(self, name:str, value:str) -> None:
@@ -101,8 +101,9 @@ class CommandHandler:
         elif command[:3] in self.allowedCommands["makedef"] or command[:12] in self.allowedCommands["makedef"]: 
             defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
             for i in range(len(defs)): 
-                self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self), False, True))
-                print("Variable added: " + defs[i][0] + " = " + str(self._defhandler.readval(defs[i][0])))
+                res = self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self), False, True))
+                if res != 0:
+                    print("Variable added: " + defs[i][0] + " = " + str(self._defhandler.readval(defs[i][0])))
         elif command in self.allowedCommands["setdef"]: 
             pass # TODO: Make a body later
         elif command in self.allowedCommands["readdef"]: 
