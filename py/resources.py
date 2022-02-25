@@ -111,8 +111,17 @@ class CommandHandler:
                 res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self), False, True))
                 if res != 0: 
                     print("Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0]))) 
-        elif command in self.allowedCommands["readdef"]: 
-            pass # TODO: Make a body later 
+        elif command[:3] in self.allowedCommands["readdef"] or command[:9] in self.allowedCommands["readdef"]: 
+            defs: dict = self._defhandler.listdefs()
+            l: int = len(defs)
+            currstr: str = additional
+
+            for i in range(l): 
+                currstr = currstr.replace(list(defs.keys())[i], str(list(defs.values())[i]))
+
+            currstr = currstr.replace("^", "**")
+            print(eval(currstr, {}, {}))
+
         else:
             print("Error: Unknown command inputted.")
 
