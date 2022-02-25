@@ -31,6 +31,9 @@ class DefinitionHandler:
     def listdefs(self) -> dict: 
         return self.definitions
 
+    def deletevar(self, varname: str): 
+        return self.definitions.pop(varname, None)
+
 class FunctionCallHandler: 
     def __init__(self, functions: tuple): 
         self.functions:tuple = functions
@@ -128,6 +131,16 @@ class CommandHandler:
             if should_return: 
                 return res
             print(res)
+        elif command[:5] in self.allowedCommands["deldef"] or command[:12] in self.allowedCommands["deldef"]: 
+            todelete = [a.strip() for a in additional.split(",")]
+            for key in todelete: 
+                res = self._defhandler.deletevar(key) 
+                if res != None: 
+                    print("Successfully deleted the variable " + key)
+                    continue
+                
+                print("Error: the variable " + key + " is not defined, thereby - cannot be deleted. ")
+
         else:
             print("Error: Unknown command inputted.")
 

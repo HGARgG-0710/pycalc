@@ -22,7 +22,8 @@ if __name__ == '__main__':
         "readdef": ["--readvar", "-rv"], 
         "makedef": [ "--definevars", "-dv"], 
         "setdef": ["--setvar", "-sv"], 
-        "listdefs": ["--listvars", "-lv"]
+        "listdefs": ["--listvars", "-lv"], 
+        "deldef": ["--deletevars", "-delv"]
     }
 
     predefined: dict = {
