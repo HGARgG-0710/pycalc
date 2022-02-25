@@ -49,7 +49,7 @@ class CommandHandler:
         self._defhandler = defhandler
         self._funchandler = funchandler
 
-    def handle(self, command: str, additional:str = ""):
+    def handle(self, command: str, additional:str = "", should_return: bool = False):
         command = command.strip(" ")
 
         if command in self.allowedCommands["exit"]:
@@ -102,13 +102,17 @@ class CommandHandler:
         elif command[:3] in self.allowedCommands["makedef"] or command[:12] in self.allowedCommands["makedef"]: 
             defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
             for i in range(len(defs)): 
-                res = self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self), False, True))
+                for j in range(2, len(defs[i])): 
+                    defs[i][1] += " " + defs[i][j]
+                res = self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self, True), False, True))
                 if res != 0:
                     print("Variable added: " + defs[i][0] + " := " + str(self._defhandler.readval(defs[i][0])))
         elif command[:8] in self.allowedCommands["setdef"] or command[:3] in self.allowedCommands["setdef"]: 
             sets: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
             for i in range(len(sets)): 
-                res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self), False, True))
+                for j in range(2, len(sets[i])): 
+                    sets[i][1] += " " + sets[i][j]
+                res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self, True), False, True))
                 if res != 0: 
                     print("Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0]))) 
         elif command[:3] in self.allowedCommands["readdef"] or command[:9] in self.allowedCommands["readdef"]: 
@@ -120,8 +124,10 @@ class CommandHandler:
                 currstr = currstr.replace(list(defs.keys())[i], str(list(defs.values())[i]))
 
             currstr = currstr.replace("^", "**")
-            print(eval(currstr, {}, {}))
-
+            res = eval(currstr, {}, {})
+            if should_return: 
+                return res
+            print(res)
         else:
             print("Error: Unknown command inputted.")
 
@@ -134,7 +140,7 @@ class CommandHandler:
     def getDefHandler(self) -> DefinitionHandler: 
         return self._defhandler
 
-def analyze_str(input_str: str, cmdhandler: CommandHandler) -> tuple:
+def analyze_str(input_str: str, cmdhandler: CommandHandler, should_return: bool = False) -> tuple:
     numbers = []
     operators = []
 
@@ -179,7 +185,9 @@ def analyze_str(input_str: str, cmdhandler: CommandHandler) -> tuple:
 
             if char == "-" and index == 0:
                 # command
-                cmdhandler.handle(input_str, " ".join(input_str.split(" ")[1:]))
+                res = cmdhandler.handle(input_str, " ".join(input_str.split(" ")[1:]), should_return)
+                if res != None: return res
+
                 input_str = input("\n$ ")
                 cmdhandler.getHistory().add(input_str)
 
@@ -234,6 +242,8 @@ def analyze_str(input_str: str, cmdhandler: CommandHandler) -> tuple:
     return numbers, operators
 
 def calculate(expression: tuple, should_output = True, should_return = False):
+    if (type(expression) == float or type(expression) == int): 
+        return expression
     nums = expression[0]
     operators = expression[1]
     expr = ""
