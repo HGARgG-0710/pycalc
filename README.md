@@ -1,12 +1,13 @@
 # Pycalc
 
-Pycalc is a simple open source cmd calculator written in Python. It has all basic arithmetic operations(addition, subtraction, division, whole division, taking the remainder of the devision, multiplication and exponentation) and can work with any quantity of numbers. It supports integers and floats. To specify a float number type 'f' before it, to specify a negative number type 'n'.
+Pycalc is a simple open source cmd calculator written in Python.
+It's fairly advanced, can do: 
 
-Examples of a negative float number: "fn42.42" or "fn111,1",
-negative integer: "n42".
+1. arithmetic (float and negative numbers too); 
+2. currency exchanges; 
+3. various commands (including variable definition). 
 
-Also it allows you to get currency exchange values for different currencies and actually USE them in arithmetic expressions.
-To get more info type "-h" command in the pycalc after installing and starting it.
+For details, when using type "--help" or "-h" in the calculator, it will give you all the commands and actions available. 
 
 ## Setup
 
