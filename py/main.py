@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 loop(input_str, history, cmdhandler) 
                 input_str = input("\n$ ")
             else: 
-                loop(input("\n$"), history, cmdhandler) 
-        except Exception: 
-            print("UnknownError: your input caused an unexpected exception to occur. ") 
+                loop(input("\n$ "), history, cmdhandler) 
+        except Exception as e: 
+            print("UnknownError: your input caused an unexpected exception to occur (error text: " + str(e) + ")") 
             errindex += 1 
