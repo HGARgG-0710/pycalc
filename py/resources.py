@@ -299,6 +299,10 @@ def eval_currency(originalCurrency:str, targetCurrency:str):
         "C": "CAD"
     }
 
+    # TODO: This thing is no longer free. Calculator can no longer rely on it. 
+    # * Shame. Such a wonderful idea. 
+    # ! Never mind, will just find an alternative free api for doing this (or fetch data directly from somewhere, hehe). 
+
     if originalCurrency.upper() not in currency_names or targetCurrency.upper() not in currency_names:
         err_currency = originalCurrency if originalCurrency.upper(
         ) not in currency_names else targetCurrency
