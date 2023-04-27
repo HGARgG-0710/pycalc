@@ -1,11 +1,10 @@
 import math
-from resources import analyze_str, calculate, CommandHandler, History, DefinitionHandler, FunctionCallHandler
+from resources import analyze_str, calculate, CommandHandler, History, DefinitionHandler, FunctionCallHandler, Parser
 from os import system, path, chdir
 
-def loop (input_phrase: str, history: History, cmdhandler: CommandHandler): 
+def loop (input_phrase: str, history: History, cmdhandler: CommandHandler, parser: Parser): 
     history.add(input_phrase)
-    expression = analyze_str(input_phrase.strip(), cmdhandler)
-    calculate(expression)
+    calculate(analyze_str(input_phrase.strip(), cmdhandler, parser))
 
 if __name__ == '__main__':
     # * Lately thought of system for auto-updating pycalc :)
@@ -33,11 +32,13 @@ if __name__ == '__main__':
     } 
 
     functions = ()
-    
+
     defhandler: DefinitionHandler = DefinitionHandler(predefined)
     funchandler: FunctionCallHandler = FunctionCallHandler(functions) 
     history: History = History()
     cmdhandler: CommandHandler = CommandHandler(commands, history, defhandler, funchandler)
+    
+    parser = Parser(cmdhandler, ["+", "-", "*", "/", "%", "#", "^"])
 
     errindex: int = 0 
     input_str: str = input("Input expression, that you wish to be calculated or command, "
@@ -46,10 +47,10 @@ if __name__ == '__main__':
     while True:
         try: 
             if errindex == 0: 
-                loop(input_str, history, cmdhandler) 
+                loop(input_str, history, cmdhandler, parser)
                 input_str = input("\n$ ")
             else: 
-                loop(input("\n$ "), history, cmdhandler) 
+                loop(input("\n$ "), history, cmdhandler, parser) 
         except Exception as e: 
             print("UnknownError: your input caused an unexpected exception to occur (error text: " + str(e) + ")") 
             errindex += 1 

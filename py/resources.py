@@ -1,3 +1,10 @@
+from typing import Callable
+
+# TODO: the library don't use the power of this API fully -- add capability to "go back in time" for the past currency excange rates (for this, change syntax;)...
+# ! There is a problem: this thing don't support ruble (RUB)...
+# TODO: find a more general API and use it instead (this one won't do); when having found, pray do write using
+# from forex_python.converter import CurrencyRates
+
 class History:
     def __init__(self):
         self._history = []
@@ -8,41 +15,46 @@ class History:
     def add(self, command: str):
         self._history.append(command)
 
-class DefinitionHandler: 
+# TODO: re-read the old code again, decide what to do as to the matter of the project's API [update it in relation to how one wants it to be]
+
+
+class DefinitionHandler:
     def __init__(self, predefined: dict = {}):
-        self.definitions:dict = predefined
-    
-    def define(self, name:str, value:str): 
+        self.definitions: dict = predefined
+
+    def define(self, name: str, value: str):
         if (name in self.definitions.keys()):
             print("DefineError: You have already defined the given variable. ")
             return 0
         self.definitions[name] = value
 
-    def setval(self, name:str, value:str):
-        if (name in self.definitions.keys()): 
+    def setval(self, name: str, value: str):
+        if (name in self.definitions.keys()):
             self.definitions[name] = value
             return
-        print("SetValueError: The given variable name is not defined. First define it. ")       
+        print("SetValueError: The given variable name is not defined. First define it. ")
         return 0
 
-    def readval(self, name: str) -> str: 
+    def readval(self, name: str) -> str:
         return self.definitions[name]
 
-    def listdefs(self) -> dict: 
+    def listdefs(self) -> dict:
         return self.definitions
 
-    def deletevar(self, varname: str): 
+    def deletevar(self, varname: str):
         return self.definitions.pop(varname, None)
 
-class FunctionCallHandler: 
-    def __init__(self, functions: tuple): 
-        self.functions:tuple = functions
 
-    def getfuncvalue(index: int, value): 
+class FunctionCallHandler:
+    def __init__(self, functions: tuple):
+        self.functions: tuple = functions
+
+    def getfuncvalue(index: int, value):
         return self.function[index](value)
 
-    def getfuncindex(funcname:str):
+    def getfuncindex(funcname: str):
         return self.index(funcname)
+
 
 class CommandHandler:
     def __init__(self, commands: dict, history: History, defhandler: DefinitionHandler, funchandler: FunctionCallHandler):
@@ -52,7 +64,7 @@ class CommandHandler:
         self._defhandler = defhandler
         self._funchandler = funchandler
 
-    def handle(self, command: str, additional:str = "", should_return: bool = False):
+    def handle(self, command: str, additional: str = "", should_return: bool = False):
         command = command.strip(" ")
 
         if command in self.allowedCommands["exit"]:
@@ -96,51 +108,59 @@ class CommandHandler:
             print("History:\n")
             for i in range(0, len(self._history.get())):
                 print(str(i+1) + ".", self._history.get()[i])
-        elif command in self.allowedCommands["listdefs"]: 
-            defs:dict = self._defhandler.listdefs()
+        elif command in self.allowedCommands["listdefs"]:
+            defs: dict = self._defhandler.listdefs()
             keys: list = list(defs.keys())
 
             print("Variables:")
-            for i in range(len(defs)): 
+            for i in range(len(defs)):
                 print(str(i + 1) + ". " + keys[i] + " = " + str(defs[keys[i]]))
-        elif command[:3] in self.allowedCommands["makedef"] or command[:12] in self.allowedCommands["makedef"]: 
-            defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
-            for i in range(len(defs)): 
-                for j in range(2, len(defs[i])): 
+        elif command[:3] in self.allowedCommands["makedef"] or command[:12] in self.allowedCommands["makedef"]:
+            defs: list = [list(filter(lambda x: x != "", q)) for q in [a.split(
+                " ") for a in [s.strip() for s in additional.split(",")]]]
+            for i in range(len(defs)):
+                for j in range(2, len(defs[i])):
                     defs[i][1] += " " + defs[i][j]
-                res = self._defhandler.define(defs[i][0], calculate(analyze_str(defs[i][1], self, True), False, True))
+                res = self._defhandler.define(defs[i][0], calculate(
+                    analyze_str(defs[i][1], self, True), False, True))
                 if res != 0:
-                    print("Variable added: " + defs[i][0] + " := " + str(self._defhandler.readval(defs[i][0])))
-        elif command[:8] in self.allowedCommands["setdef"] or command[:3] in self.allowedCommands["setdef"]: 
-            sets: list = [list(filter(lambda x: x != "", q)) for q in [a.split(" ") for a in [s.strip() for s in additional.split(",")]]]
-            for i in range(len(sets)): 
-                for j in range(2, len(sets[i])): 
+                    print(
+                        "Variable added: " + defs[i][0] + " := " + str(self._defhandler.readval(defs[i][0])))
+        elif command[:8] in self.allowedCommands["setdef"] or command[:3] in self.allowedCommands["setdef"]:
+            sets: list = [list(filter(lambda x: x != "", q)) for q in [a.split(
+                " ") for a in [s.strip() for s in additional.split(",")]]]
+            for i in range(len(sets)):
+                for j in range(2, len(sets[i])):
                     sets[i][1] += " " + sets[i][j]
-                res = self._defhandler.setval(sets[i][0], calculate(analyze_str(sets[i][1], self, True), False, True))
-                if res != 0: 
-                    print("Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0]))) 
-        elif command[:3] in self.allowedCommands["readdef"] or command[:9] in self.allowedCommands["readdef"]: 
+                res = self._defhandler.setval(sets[i][0], calculate(
+                    analyze_str(sets[i][1], self, True), False, True))
+                if res != 0:
+                    print(
+                        "Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0])))
+        elif command[:3] in self.allowedCommands["readdef"] or command[:9] in self.allowedCommands["readdef"]:
             defs: dict = self._defhandler.listdefs()
             l: int = len(defs)
             currstr: str = additional
 
-            for i in range(l): 
-                currstr = currstr.replace(list(defs.keys())[i], str(list(defs.values())[i]))
+            for i in range(l):
+                currstr = currstr.replace(
+                    list(defs.keys())[i], str(list(defs.values())[i]))
 
             currstr = currstr.replace("^", "**")
             res = eval(currstr, {}, {})
-            if should_return: 
+            if should_return:
                 return res
             print(res)
-        elif command[:5] in self.allowedCommands["deldef"] or command[:12] in self.allowedCommands["deldef"]: 
+        elif command[:5] in self.allowedCommands["deldef"] or command[:12] in self.allowedCommands["deldef"]:
             todelete = [a.strip() for a in additional.split(",")]
-            for key in todelete: 
-                res = self._defhandler.deletevar(key) 
-                if res != None: 
+            for key in todelete:
+                res = self._defhandler.deletevar(key)
+                if res != None:
                     print("Successfully deleted the variable " + key)
                     continue
-                
-                print("Error: the variable " + key + " is not defined, thereby - cannot be deleted. ")
+
+                print("Error: the variable " + key +
+                      " is not defined, thereby - cannot be deleted. ")
 
         else:
             print("Error: Unknown command inputted.")
@@ -148,112 +168,158 @@ class CommandHandler:
     def getHistory(self) -> History:
         return self._history
 
-    def getFuncHandler(self) -> FunctionCallHandler: 
+    def getFuncHandler(self) -> FunctionCallHandler:
         return self._funchandler
 
-    def getDefHandler(self) -> DefinitionHandler: 
+    def getDefHandler(self) -> DefinitionHandler:
         return self._defhandler
 
-def analyze_str(input_str: str, cmdhandler: CommandHandler, should_return: bool = False) -> tuple:
-    numbers = []
-    operators = []
 
-    index = 0
+class Parser:
+	cmdhandler: CommandHandler
+	operators: list[str]
 
-    for _ in input_str:
-        if index >= len(input_str):
-            break
+	@staticmethod
+	def parse_bracket():
+		pass
 
-        char = input_str[index]
+	# TODO: generalize to array of symbols for inverse of the number over positiveness...
+	# TODO: handle the ambiguities within the parser (multiple --, the use of letters, which can be used for currencies, et cetera...)
+	# TODO: destroy the limitations of parser; make it far more unlimited;
+	# TODO : unite the parse_int() with the parse_float() to get the parse_number(), so that there is no separation between them...s
+	@staticmethod
+	def parse_int(string: str, index: int):
+		i = index
+	
+		while i < len(string) and not string[i].isdigit():
+			if (string[i]== "n" or string[i] == "-"):
+				string[i] = "-"
+			i += 1
+	
+		endInd = i
+		i = index
+		d = readwhile(string, endInd, lambda x: x.isdecimal())
+		# TODO: the first argument should get converted to 'int';
+		return ((((endInd - i) % 2) * "-") + "".join(string[endInd:d]), d)
+	
+	@staticmethod
+	def parse_number():
+		pass
+	
+	@staticmethod
+	def parse_operator():
+		pass
+	
+	def parse_command():
+		pass
+	
+	def __init__(self, _cmdhandler: CommandHandler, _operators: list[str]):
+		self.cmdhandler = _cmdhandler
+		self.operators = _operators
 
-        # checking whether current char is an integer or not
-        # (I know there is a function for doing it, but still)
-        try:
-            int(char)
-            t = "int"
-        except ValueError:
-            t = "float" if char == "f" else "str" if char != "n" else "int"
+# ? Should one really be adding all these type-hints all over the spot???
+# * Pray think...
+# * Mostly tends to clutter the code and (to it) don't provide any actual runtime differnce [only toolwise];
+# * Current decision: keep them; Also -- make wider use of them within the function's names, return types;
+# TODO: and then either keep or delete them...
+def readwhile(string, index: int, property: Callable):
+    ind = index
+    while property(string[ind]):
+        ind += 1
+    return ind
 
-        if t == "int":
-            is_negative = char == "n"
-            numbers += ([char] if not is_negative else ["(-"])
-            index += 1
-            while True:
-                try:
-                    curr_symbol = input_str[index if index < len(
-                        input_str) else index - 1]
-                    int(curr_symbol)  # checking if a number
 
-                    if index == len(input_str):
-                        raise ValueError("break")
-
-                    index += 1
-                    numbers[len(numbers) - 1] += curr_symbol
-                except ValueError:
-                    if is_negative:
-                        numbers[len(numbers) - 1] += ")"
-                    break
-        elif t == "str":
-            from re import match
-            allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
-
-            if char == "-" and index == 0:
-                # command
-                res = cmdhandler.handle(input_str, " ".join(input_str.split(" ")[1:]), should_return)
-                if res != None: return res
-
-                input_str = input("\n$ ")
-                cmdhandler.getHistory().add(input_str)
-
-                return analyze_str(input_str, cmdhandler)
-            elif char in allowed_operators:
-                # operator
-                operators += char
-            elif char == "(" or char == ")":
-                # bracket
-                operators += ["+"]
-                numbers += [("0" if char == ")" else "") +
-                            char + ("0" if char == "(" else "")]
-
-            elif match("[A-Za-z]", char):
-                index += 1
-                numbers += ["(" + eval_currency(char.upper(),
-                                                input_str[index].upper()), "0)"]
-                operators += ["+"]
-            else:
-                if char != " ":
-                    print("Error: Invalid character " + char + " inputted.")
-                    return (), ()
-            index += 1
-        elif t == "float":
-            is_negative = input_str[index + 1] == "n"
-            numbers += (input_str[index + 1]
-                        if not is_negative else ["(-"])
-            index += 2
-            while True:
-                try:
-                    curr_symbol = input_str[index if index < len(
-                        input_str) else index - 1]
-
-                    if(curr_symbol != "." and curr_symbol != ","):
-                        int(curr_symbol)
-                        index += 1
-                    else:
-                        numbers[len(numbers) - 1] += "."
-                        index += 1
-                        continue
-
-                    numbers[len(numbers) - 1] += curr_symbol
-
-                    if index == len(input_str):
-                        raise ValueError("Ended")
-
-                except ValueError:
-                    if is_negative:
-                        numbers[len(numbers) - 1] += ")"
-                    break
-
-    return numbers, operators
+def analyze_str(input_str, cmdhandler: CommandHandler, parser: Parser, should_return: bool = False) -> tuple:
+	numbers = []
+	operators = []
+	
+	input_str = list(input_str)
+	index = 0
+	
+	# todo: rewrite this into a "while True" + checking for index to be 'too high' [this'd be more manual but greater control over the loop too]...
+	while True:
+		if index == len(input_str):
+			break
+	
+		char = input_str[index]
+	
+	    # ? Emmm... Why not separate onto methods so that the thing may be more fluid???
+	    # ? Emmm... Why not add '-a' notation for negative numbers ['na' will be an adition...]???
+	    # ? Emmm... Why necesserily require for the 'f' for float notation???
+	    # TODO: pray fix all these things...
+	
+		if char.isdecimal() or char == "n":
+			numstr, index = parser.parse_int(input_str, index)
+			numbers += [str(numstr)]
+			continue
+		elif char == "f":
+			is_negative = input_str[index + 1] == "n"
+			numbers += (input_str[index + 1]
+	                    if not is_negative else ["(-"])
+			index += 2
+			while True:
+				try:
+					curr_symbol = input_str[index if index < len(
+	                    input_str) else index - 1]
+	
+					if(curr_symbol != "." and curr_symbol != ","):
+						int(curr_symbol)
+						index += 1
+					else:
+						numbers[len(numbers) - 1] += "."
+						index += 1
+						continue
+	
+					numbers[len(numbers) - 1] += curr_symbol
+	
+					if index == len(input_str):
+						raise ValueError("Ended")
+	
+				except ValueError:
+					if is_negative:
+						numbers[len(numbers) - 1] += ")"
+						break
+		else:  
+			from re import match
+	        # TODO: make this a globalized variable...
+	        # TODO: extend this thing, pray [id est, add many more operators]...
+	        # todo: generalize the thing in question (let arbitrarily many places be allowed for an operator -- not just binary); 
+	        # TODO: pray add a way of creating one's own functions within the calculator's context; 
+			allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
+	
+			if char == "-" and index == 0:
+			    # command
+                # TODO: clean up all this ridiculous mess as well; Change the types -- make code more... "possible" [though, with this language, it probably won't make much difference]
+				res = cmdhandler.handle(input_str, " ".join(input_str.split(" ")[1:]), should_return)
+				if res != None: 
+					return res
+			
+				input_str = input("\n$ ")
+				cmdhandler.getHistory().add(input_str)
+			
+				return analyze_str(input_str, cmdhandler)
+			elif char in allowed_operators:
+			    # operator
+				operators += char
+			elif char == "(" or char == ")":
+				# bracket
+				operators += ["+"]
+				numbers += [("0" if char == ")" else "") +
+			                char + ("0" if char == "(" else "")]
+			
+			elif match("[A-Za-z]", char):
+				index += 1
+				numbers += ["(" + eval_currency(char.upper(),
+			                                    input_str[index].upper()), "0)"]
+				operators += ["+"]
+			else:
+				if char != " ":
+                    # TODO: generalize this particular construct for errors within the calculator -- printiing a messaeg, then returning an empty expression...
+					print("Error: Invalid character " + char + " inputted.")
+				return (), ()
+			index += 1
+	
+	return numbers, operators
 
 def calculate(expression: tuple, should_output = True, should_return = False):
     if (type(expression) == float or type(expression) == int): 
@@ -287,6 +353,7 @@ def eval_currency(originalCurrency:str, targetCurrency:str):
     if originalCurrency.upper() == targetCurrency.upper():
         return "1"
 
+    # TODO: Expand this thing... Add more of them...
     currency_names:dict = {
         "D": "USD",
         "E": "EUR",
