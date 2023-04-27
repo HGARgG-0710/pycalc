@@ -3,54 +3,55 @@ from resources import analyze_str, calculate, CommandHandler, History, Definitio
 from os import system, path, chdir
 
 def loop (input_phrase: str, history: History, cmdhandler: CommandHandler, parser: Parser): 
-    history.add(input_phrase)
-    calculate(analyze_str(input_phrase.strip(), cmdhandler, parser))
+	history.add(input_phrase)
+	calculate(analyze_str(input_phrase.strip(), cmdhandler, parser))
 
 if __name__ == '__main__':
-    # * Lately thought of system for auto-updating pycalc :)
-    print("Checking for possible updates...")
-    chdir(f"{path.dirname(path.dirname(__file__))}")
-    system("git pull")
+	# * Lately thought of system for auto-updating pycalc :)
+	print("Checking for possible updates...")
+	chdir(f"{path.dirname(path.dirname(__file__))}")
+	system("git pull")
 
-    print("\n")
+	print("\n")
 
-    commands: dict = {
-        "exit": ["--exit", "-e"],
-        "help": ["--help", "-h"],
-        "history": ["--history", "-hi"], 
-        "readdef": ["--readvar", "-rv"], 
-        "makedef": [ "--definevars", "-dv"], 
-        "setdef": ["--setvar", "-sv"], 
-        "listdefs": ["--listvars", "-lv"], 
-        "deldef": ["--deletevars", "-delv"]
-    }
+	commands: dict = {
+		"exit": ["--exit", "-e"],
+		"help": ["--help", "-h"],
+		"history": ["--history", "-hi"], 
+		"readdef": ["--readvar", "-rv"], 
+		"makedef": [ "--definevars", "-dv"], 
+		"setdef": ["--setvar", "-sv"], 
+		"listdefs": ["--listvars", "-lv"], 
+		"deldef": ["--deletevars", "-delv"]
+	}
 
-    predefined: dict = {
-        "pi": math.pi,  
-        "e": math.e, 
-        "phi": (1+math.sqrt(5))/2
-    } 
+	predefined: dict = {
+		"pi": math.pi,  
+		"e": math.e, 
+		"phi": (1+math.sqrt(5))/2
+	} 
 
-    functions = ()
+	functions = ()
 
-    defhandler: DefinitionHandler = DefinitionHandler(predefined)
-    funchandler: FunctionCallHandler = FunctionCallHandler(functions) 
-    history: History = History()
-    cmdhandler: CommandHandler = CommandHandler(commands, history, defhandler, funchandler)
-    
-    parser = Parser(cmdhandler, ["+", "-", "*", "/", "%", "#", "^"])
+	defhandler: DefinitionHandler = DefinitionHandler(predefined)
+	funchandler: FunctionCallHandler = FunctionCallHandler(functions) 
+	history: History = History()
+	cmdhandler: CommandHandler = CommandHandler(commands, history, defhandler, funchandler)
+	
+	parser = Parser(cmdhandler, ["+", "-", "*", "/", "%", "#", "^"])
 
-    errindex: int = 0 
-    input_str: str = input("Input expression, that you wish to be calculated or command, "
-                           "that you wish to be executed. For help type '-h' or '--help'.\n$ ")
+	errindex: int = 0 
+	input_str: str = input("Input expression, that you wish to be calculated or command, "
+						   "that you wish to be executed. For help type '-h' or '--help'.\n$ ")
 
-    while True:
-        try: 
-            if errindex == 0: 
-                loop(input_str, history, cmdhandler, parser)
-                input_str = input("\n$ ")
-            else: 
-                loop(input("\n$ "), history, cmdhandler, parser) 
-        except Exception as e: 
-            print("UnknownError: your input caused an unexpected exception to occur (error text: " + str(e) + ")") 
-            errindex += 1 
+	while True:
+		try: 
+			if errindex == 0: 
+				loop(input_str, history, cmdhandler, parser)
+				input_str = input("\n$ ")
+			else: 
+				loop(input("\n$ "), history, cmdhandler, parser) 
+		except Exception as e: 
+			# print("UnknownError: your input caused an unexpected exception to occur (error text: " + str(e) + ")") 
+			raise e 
+			# errindex += 1 

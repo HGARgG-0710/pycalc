@@ -45,7 +45,7 @@ $ pycalc
 
 ## Updates
 
-The project's not really big and quite spontaneous, so I've dicided to add the system for auto-updating it every time someone starts the app.
+The project's not really big and quite spontaneous, so I've decided to add the system for auto-updating it every time someone starts the app.
 
 But if you had pycalc before, then for this to come into work, you need to manually do:
 
