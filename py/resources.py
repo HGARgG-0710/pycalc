@@ -165,11 +165,10 @@ class CommandHandler:
 					print("Successfully deleted the variable " + key)
 					continue
 
-				print("Error: the variable " + key +
-					  " is not defined, thereby - cannot be deleted. ")
+				calculator_error("Error: the variable " + key + " is not defined, thus - cannot be deleted. ")
 
 		else:
-			print("Error: Unknown command inputted.")
+			calculator_error("Error: Unknown command inputted.")
 
 	def getHistory(self) -> History:
 		return self._history
@@ -202,6 +201,16 @@ class Parser:
 		endInd = readwhile(string, index, lambda x: not x.isdigit() and x == "-" or x == "n")
 		d = readwhile(string, endInd, lambda x: x.isdecimal())
 		return (int((((endInd - index) % 2) * "-") + "".join(string[endInd:d])), d)
+
+	@staticmethod
+	def checkifcommand(string, index): 
+		while index < len(string): 
+			# TODO: generalize this thing to an array of characters NOT appearing within a command [used to distinguish between commands and other things;vI]...
+			if (string[index] == "." or string[index].isdecimal() or string[index] == "(" or string[index] == ")"): 
+				return False
+			index += 1
+
+		return True
 	
 	# TODO: generalize the 'indicator' symbols -- here it's ['f']; 
 	@staticmethod
@@ -225,6 +234,10 @@ class Parser:
 	def __init__(self, _cmdhandler: CommandHandler, _operators: list[str]):
 		self.cmdhandler = _cmdhandler
 		self.operators = _operators
+
+def calculator_error(message): 
+	print(message)
+	return ((), ())
 
 # TODO: let the type annotations be intact with the actually used types...
 def readwhile(string, index: int, property: Callable):
@@ -252,17 +265,19 @@ def analyze_str(input_str, cmdhandler: CommandHandler, parser: Parser, should_re
 		# ? Emmm... Why not add '-a' notation for negative numbers ['na' will be an adition...]???
 		# ? Emmm... Why necesserily require for the 'f' for float notation???
 		# TODO: pray fix all these things...
+		isCommand = False
+
+		if (char == "-"): 
+			isCommand = parser.checkifcommand(input_str, index)	
 	
-		if char.isdecimal() or char == "n" or char == "f":
+		if (char.isdecimal() or char == "n" or char == "f") and not isCommand:
 			numstr, index = parser.parse_number(input_str_list, index)
 			numbers += [str(numstr)]
 			continue
 		else:  
 			from re import match
 	
-			# todo: HERE IS NOT A CHECK FOR WHETHER THE GIVEN THING IS, IN FACT, AN INTEGER...
-			# * add it; 
-			if char == "-" and index == 0:
+			if char == "-" and isCommand:
 				# command
 				# TODO: clean up all this ridiculous mess as well; Change the types -- make code more... "possible" [though, with this language, it probably won't make much difference]
 				res = cmdhandler.handle(input_str, " ".join(input_str.split(" ")[1:]), should_return)
@@ -271,27 +286,27 @@ def analyze_str(input_str, cmdhandler: CommandHandler, parser: Parser, should_re
 			
 				input_str = input("\n$ ")
 				cmdhandler.getHistory().add(input_str)
-			
+
 				return analyze_str(input_str, cmdhandler, parser)
 			elif char in parser.operators:
 				# operator
 				operators += char
 			elif char == "(" or char == ")":
+				# todo: Wrap the handing of brackets into something, check that they are not error-prone...
 				# bracket
 				operators += ["+"]
 				numbers += [("0" if char == ")" else "") +
 							char + ("0" if char == "(" else "")]
 			
+			# ? Do something about that notation???
 			elif match("[A-Za-z]", char):
 				index += 1
 				numbers += ["(" + eval_currency(char.upper(),
 												input_str[index].upper()), "0)"]
 				operators += ["+"]
 			else:
-				if char != " ":
-					# TODO: generalize this particular construct for errors within the calculator -- printiing a messaeg, then returning an empty expression...
-					print("Error: Invalid character " + char + " inputted.")
-					return (), ()
+				if char != " " and char != "\t":
+					return calculator_error("Error: Unknown character " + char + " inputted.")
 			index += 1
 	
 	return numbers, operators
@@ -349,8 +364,7 @@ def eval_currency(originalCurrency:str, targetCurrency:str):
 		err_currency = originalCurrency if originalCurrency.upper(
 		) not in currency_names else targetCurrency
 
-		print(f"Error: no such currency as {err_currency}")
-		return "0"
+		return str(len(calculator_error(f"Error: no such currency as {err_currency}")[0]))
 
 	original:str = currency_names[originalCurrency]
 	target:str = currency_names[targetCurrency]
