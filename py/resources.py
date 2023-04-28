@@ -57,12 +57,16 @@ class FunctionCallHandler:
 
 
 class CommandHandler:
-	def __init__(self, commands: dict, history: History, defhandler: DefinitionHandler, funchandler: FunctionCallHandler):
+	# TODO: problem -- Python't typehints don't support type dependencies; 
+	# * Conclusion: nah, they're going to go, alright...
+	# ? Pray do something about it...
+	def __init__(self, commands: dict, history: History, defhandler: DefinitionHandler, funchandler: FunctionCallHandler, parser = None):
 		self.allowedCommands = commands
 
 		self._history = history
 		self._defhandler = defhandler
 		self._funchandler = funchandler
+		self._parser = parser
 
 	def handle(self, command: str, additional: str = "", should_return: bool = False):
 		command = command.strip(" ")
@@ -122,7 +126,7 @@ class CommandHandler:
 				for j in range(2, len(defs[i])):
 					defs[i][1] += " " + defs[i][j]
 				res = self._defhandler.define(defs[i][0], calculate(
-					analyze_str(defs[i][1], self, True), False, True))
+					analyze_str(defs[i][1], self, self._parser, True), False, True))
 				if res != 0:
 					print(
 						"Variable added: " + defs[i][0] + " := " + str(self._defhandler.readval(defs[i][0])))
@@ -138,6 +142,8 @@ class CommandHandler:
 					print(
 						"Value changed: " + sets[i][0] + " = " + str(self._defhandler.readval(sets[i][0])))
 		elif command[:3] in self.allowedCommands["readdef"] or command[:9] in self.allowedCommands["readdef"]:
+			# TODO (1): separate these commands onto separate functions; 
+			# TODO (2): implement the reading of the variables properly -- let it choose the priority of things [stuff like 'pie' won't be read as '(pi)e']
 			defs: dict = self._defhandler.listdefs()
 			l: int = len(defs)
 			currstr: str = additional
@@ -183,28 +189,31 @@ class Parser:
 	def parse_bracket():
 		pass
 
-	# TODO: generalize to array of symbols for inverse of the number over positiveness...
-	# TODO: handle the ambiguities within the parser (multiple --, the use of letters, which can be used for currencies, et cetera...)
 	# TODO: destroy the limitations of parser; make it far more unlimited;
-	# TODO : unite the parse_int() with the parse_float() to get the parse_number(), so that there is no separation between them...s
+
+	# TODO: handle the ambiguities within the parser (multiple --, the use of letters, which can be used for currencies, et cetera...)
+	# * Don't delete this thing -- instead, pray keep it; 
+	# ^ IDEA: make the project into a proper 'module' or however is this programmatic unit called in Python lingo -- an importable entity [if it isn't already...]; 
+	# ^ IDEA: generalize this powerfully -- create a CalcSyntax thing, a library with a very wide calculator implemented in it with possibility of choosing syntax for it; 
+	# ^ IDEA: make the 'pycalc' more configurable -- add a '--config' command; Let it correspond to changing the notation for things [and let it be general enough... -- make proper syntax for it]; 
 	@staticmethod
-	def parse_int(string: list[str], index: int):
-		i = index
-	
-		while i < len(string) and not string[i].isdigit():
-			if (string[i]== "n" or string[i] == "-"):
-				string[i] = "-"
-			i += 1
-	
-		endInd = i
-		i = index
+	def parse_int(string: list[str], index: int):	
+		# TODO: generalize to array of symbols for inverse of the number over positiveness...
+		endInd = readwhile(string, index, lambda x: not x.isdigit() and x == "-" or x == "n")
 		d = readwhile(string, endInd, lambda x: x.isdecimal())
-		# TODO: the first argument should get converted to 'int';
-		return ((((endInd - i) % 2) * "-") + "".join(string[endInd:d]), d)
+		return (int((((endInd - index) % 2) * "-") + "".join(string[endInd:d])), d)
 	
+	# TODO: generalize the 'indicator' symbols -- here it's ['f']; 
 	@staticmethod
-	def parse_number():
-		pass
+	def parse_number(string: list[str], index: int):
+		if (string[index] == "f"): 
+			index = index + 1
+		endInd = readwhile(string, index, lambda x: not x.isdigit() and x == "-" or x == "n")
+		d = readwhile(string, endInd, lambda x: x.isdecimal())
+		if (d < len(string) and string[d] == "."):
+			d = readwhile(string, d + 1, lambda x: x.isdecimal())	
+		# TODO: the first argument should get converted to 'int';
+		return (float((((endInd - index) % 2) * "-") + "".join(string[endInd:d])), d)
 	
 	@staticmethod
 	def parse_operator():
@@ -244,45 +253,15 @@ def analyze_str(input_str, cmdhandler: CommandHandler, parser: Parser, should_re
 		# ? Emmm... Why necesserily require for the 'f' for float notation???
 		# TODO: pray fix all these things...
 	
-		if char.isdecimal() or char == "n":
-			numstr, index = parser.parse_int(input_str_list, index)
+		if char.isdecimal() or char == "n" or char == "f":
+			numstr, index = parser.parse_number(input_str_list, index)
 			numbers += [str(numstr)]
 			continue
-		elif char == "f":
-			is_negative = input_str[index + 1] == "n"
-			numbers += (input_str[index + 1]
-						if not is_negative else ["(-"])
-			index += 2
-			while True:
-				try:
-					curr_symbol = input_str[index if index < len(
-						input_str) else index - 1]
-	
-					if(curr_symbol != "." and curr_symbol != ","):
-						int(curr_symbol)
-						index += 1
-					else:
-						numbers[len(numbers) - 1] += "."
-						index += 1
-						continue
-	
-					numbers[len(numbers) - 1] += curr_symbol
-	
-					if index == len(input_str):
-						raise ValueError("Ended")
-	
-				except ValueError:
-					if is_negative:
-						numbers[len(numbers) - 1] += ")"
-						break
 		else:  
 			from re import match
-			# TODO: make this a globalized variable...
-			# TODO: extend this thing, pray [id est, add many more operators]...
-			# todo: generalize the thing in question (let arbitrarily many places be allowed for an operator -- not just binary); 
-			# TODO: pray add a way of creating one's own functions within the calculator's context; 
-			allowed_operators = ["+", "-", "*", "/", "%", "#", "^"]
 	
+			# todo: HERE IS NOT A CHECK FOR WHETHER THE GIVEN THING IS, IN FACT, AN INTEGER...
+			# * add it; 
 			if char == "-" and index == 0:
 				# command
 				# TODO: clean up all this ridiculous mess as well; Change the types -- make code more... "possible" [though, with this language, it probably won't make much difference]
@@ -294,7 +273,7 @@ def analyze_str(input_str, cmdhandler: CommandHandler, parser: Parser, should_re
 				cmdhandler.getHistory().add(input_str)
 			
 				return analyze_str(input_str, cmdhandler, parser)
-			elif char in allowed_operators:
+			elif char in parser.operators:
 				# operator
 				operators += char
 			elif char == "(" or char == ")":

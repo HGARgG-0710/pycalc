@@ -38,7 +38,11 @@ if __name__ == '__main__':
 	history: History = History()
 	cmdhandler: CommandHandler = CommandHandler(commands, history, defhandler, funchandler)
 	
+	# TODO: extend this thing, pray [id est, add many more operators]...
+	# todo: generalize the thing in question (let arbitrarily many places be allowed for an operator -- not just binary); 
+	# TODO: pray add a way of creating one's own functions within the calculator's context; 
 	parser = Parser(cmdhandler, ["+", "-", "*", "/", "%", "#", "^"])
+	cmdhandler._parser = parser
 
 	errindex: int = 0 
 	input_str: str = input("Input expression, that you wish to be calculated or command, "
