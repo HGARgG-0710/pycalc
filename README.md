@@ -11,37 +11,20 @@ It can do:
 
 For details, when using type "--help" or "-h" in the calculator, it will give you all the commands and actions available. 
 
-## Setup
+## Setup and Use
 
-For all platforms: 
+Having obtained an instance of the project (via 'git clone', or otherwise...), one can then run 
+the appropriate installation script (in the 'setup' directory - '.bat' for Windows, '.sh' - for systems running Shell).
 
-```bash
-$ cd path/to/
-$ git clone https://github.com/HGARgG-0710/pycalc.git
-$ cd pycalc
-```
+Note: one must run them with administrator rights. 
 
-Windows (as an Administrator):
-
-```batch
-setup.bat
-```
-
-Linux, macOS and others:
-
-```bash
-$ sudo setup.sh
-```
-
-## Use
-
-To run, type: 
+Use via: 
 
 ```bash
 $ pycalc
 ```
 
-(You can exit the app with the "-e" or "--exit" commands)
+(Adding the alias is the only thing scripts do. Exiting is done via "-e" or "--exit" commands.)
 
 ## Updates
 

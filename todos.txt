@@ -1,0 +1,10 @@
+1.? Add the 'uninstall' scripts; 
+	[Note: that would be slightly more difficult, due to the fact that: 
+		
+		1. In the '.sh' version of the program, it creates the 'pycalc' alias - so, one'll be forced to look for the lines that explicitly defines it!
+		2. In the '.bat' version, it modifies the PATH - same problem as in 1. - text search is required (AND THE PATH __has__ to be remembered somewhere for further deletion...); 
+		? How to go about it ?
+		IDEA: search for the path of the scripts, if found - then delete it (1. - write to /.bashrc, 2. - rewrite the path); 
+	]
+
+2. Problem with the ',' notation for floats; 

@@ -270,19 +270,34 @@ class Parser:
 
         return True
 
-    # TODO: generalize the 'indicator' symbols -- here it's ['f'];
     @staticmethod
-    def parse_number(string: list[str], index: int):
+    def validify(string: str, allowed_syms: list[str] | str, replace_map: dict[str, str], skipped: list[str] = []):
+        return "".join([a if a in allowed_syms else replace_map[a] for a in string if not a in skipped])
+
+    # todo: GENERALIZE to have the arbitrary n-ary system (for now, only decimals are supported...); 
+    @classmethod
+    def num_validify(cls, numstr: str):
+        return cls.validify(numstr, "".join([str(i) for i in range(10)]) + ".", {",": "."})
+
+    # TODO: generalize the 'indicator' symbols -- here it's ['f'];
+    @classmethod
+    def parse_number(cls, string: list[str], index: int):
         if string[index] == "f":
             index = index + 1
         endInd = readwhile(
             string, index, lambda x: not x.isdigit() and x == "-" or x == "n"
         )
         d = readwhile(string, endInd, lambda x: x.isdecimal())
-        if d < len(string) and string[d] == ".":
+        if d < len(string) and (string[d] in [".", ","]):
             d = readwhile(string, d + 1, lambda x: x.isdecimal())
-        # TODO: the first argument should get converted to 'int';
-        return (float((((endInd - index) % 2) * "-") + "".join(string[endInd:d])), d)
+        # TODO: the first argument should get converted to 'int' (when it's an integer - the output is ALWAYS a float...);
+        return (
+            float(
+                (((endInd - index) % 2) * "-")
+                + "".join(cls.num_validify(string[endInd:d]))
+            ),
+            d,
+        )
 
     @staticmethod
     def parse_operator():
@@ -454,7 +469,9 @@ def eval_currency(originalCurrency: str, targetCurrency: str):
     target: str = currency_names[targetCurrency]
 
     address: str = r"https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE"
-    query_text: str = f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+    query_text: str = (
+        f"{address}&from_currency={original}&to_currency={target}&apikey=H88SANVRLLXS7BD9"
+    )
 
     result = get(query_text).json()
     exchange_rate = result["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
