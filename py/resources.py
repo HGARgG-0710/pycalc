@@ -345,7 +345,7 @@ def analyze_str(
 
         if char == "-":
             isCommand = parser.checkifcommand(input_str, index)
-            if not isCommand:
+            if not isCommand and index < len(input_str) - 1 and input_str[index + 1].isdecimal():
                 char = "n"
 
         if (char.isdecimal() or char == "n" or char == "f") and not isCommand:
@@ -355,7 +355,7 @@ def analyze_str(
         else:
             from re import match
 
-            if char == "-" and isCommand:
+            if isCommand:
                 # command
                 # TODO: clean up all this ridiculous mess as well; Change the types -- make code more... "possible" [though, with this language, it probably won't make much difference]
                 res = cmdhandler.handle(
