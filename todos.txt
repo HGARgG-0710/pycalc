@@ -6,5 +6,3 @@
 		? How to go about it ?
 		IDEA: search for the path of the scripts, if found - then delete it (1. - write to /.bashrc, 2. - rewrite the path); 
 	]
-
-2. Problem with the ',' notation for floats; 

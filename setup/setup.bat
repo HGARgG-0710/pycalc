@@ -3,6 +3,8 @@
 @REM TODO: this is currently under consideration (no RUB available; ECB don't publish it, hence not available via this API currently;)...
 @REM pip install forex-python
 
+pip install requests
+
 set Key=HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment
  
 set FolderToAdd=%~dp0;

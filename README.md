@@ -37,14 +37,7 @@ $ cd path/to/pycalc
 $ git pull
 ```
 
-<!-- * This thing had previously been in the above 'bash' -->
-<!-- $ pip install forex-python -->
-
 Because, until now it was the only way of updating. 
-
-<!-- * Old remark... -->
-<!-- (+forex-python for currency-exchange, if it isn't installed already).  -->
-
 Later on, you're gonna get them automatically when running the app.
 
 If one is new to pycalc, then none of this is required and once you've installed it, it'll automatically update every time you start it with:

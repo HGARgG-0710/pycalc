@@ -372,7 +372,8 @@ def analyze_str(
                 # operator
                 # TODO (1): this should check for more complex operators
                 # TODO (2): this don't work generally at all, just HAPPENS to work for the operators that take only 1 symbol [which really shouldn't and is only a Python feature];i
-                operators += char
+                operators += char 
+            # TODO: generalize the brackets (allow more...); 
             elif char == "(" or char == ")":
                 # todo: Wrap the handing of brackets into something, check that they are not error-prone...
                 # bracket
@@ -434,7 +435,7 @@ def eval_currency(originalCurrency: str, targetCurrency: str):
     if originalCurrency.upper() == targetCurrency.upper():
         return "1"
 
-    # TODO: Expand this thing... Add more of them...
+    # TODO: Expand this... Add more of them...
     currency_names: dict = {
         "D": "USD",
         "E": "EUR",
@@ -446,10 +447,6 @@ def eval_currency(originalCurrency: str, targetCurrency: str):
         "J": "JPY",
         "C": "CAD",
     }
-
-    # TODO: This thing is no longer free. Calculator can no longer rely on it.
-    # * Shame. Such a wonderful idea.
-    # ! Never mind, will just find an alternative free api for doing this (or fetch data directly from somewhere, hehe).
 
     if (
         originalCurrency.upper() not in currency_names
